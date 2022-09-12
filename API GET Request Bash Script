@@ -1,0 +1,24 @@
+#!/bin/bash
+###############################################################################>
+#Script Name :Yale University Library Voyager API Book Search Script
+#Description : This script calls the open library api and searches books using the book's isbn number. The get request returns information about the book such as book title, number of pages
+#Author : Anjuli Panizzi
+#Error Handling: If the user makes an error in the input of the isbn or makes an error in the input of the api URL, the user will receive the status code 400 Bad Request.
+                  # If the user makes a PUT/POST request but the user does not have permission to modify the resource, the user will receive a status code 403 Forbidden.If the user enters the required credentials that have the necessary permissions, the user will no longer receive status code 403.
+                 # The user may enter an isbn that is not in the open library database and receive a 404 error because no data would be returned
+                 #If any internal errors occur while handling the request, Status code 500 Internal Server Error would be returned.
+##############################################################################
+# install curl command
+sudo apt-get update
+sudo apt-get install curl
+#install jq so that api data output can be formatted as a csv file
+sudo apt install jq
+#search books
+curl https://libapp.library.yale.edu/VoySearch/GetBibItem?isxn=9780415704953 | jq '.record[].title, .record[].author, .record[].pdescription, .record[].publisher, .record[].pubplace, .record[].isxn' > newapi.json
+#Place the results of the book search into a .csv file
+pr -ts" " --columns 6 newapi.json > newapi2.json
+sed -i.bak 1i"Title,Author,Pdescription,Publisher,Pubplace,Isbn" newapi2.json
+echo "Here are your truncated book search results from Yale Library!"
+cat newapi2.json
+cat newapi2.json > newapi.csv
+echo "Your book search results are now saved in to a .csv file!"
