@@ -1,0 +1,53 @@
+#!/usr/bin/python
+########################################################################################################################################################################
+#Script Name :Yale University Library Voyager API Book Search Script
+#Description : This script calls the open library api and searches books using the book's isbn number. The get request returns information about the book such as book title, number of pages
+#Author : Anjuli Panizzi
+#Error Handling: If the user makes an error in the input of the isbn or makes an error in the input of the api URL, the user will receive the status code 400 Bad Request.
+                  # If the user makes a PUT/POST request but the user does not have permission to modify the resource, the user will receive a status code 403 Forbidden.If the user enters the required credentials that have the necessary permissions, the user will no longer receive status code 403.
+                 # The user may enter an isbn that is not in the open library database and receive a 404 error because no data would be returned
+                 #If any internal errors occur while handling the request, Status code 500 Internal Server Error would be returned.
+#####################################################################################################################################################################################################
+#Import the modules needed to run the script.
+import requests
+import csv
+import subprocess
+
+#Using subprocess.run to execute the echo command, the script will explain to the user how the script will search for their book.
+subprocess.run('echo "Using the ISBN that you provided, this script will search the Yale Library API to retieve information about your requested book."', shell=True )
+subprocess.run('echo "The ISBN that you provided was 9780415704953"', shell=True )
+subprocess.run('echo "Please see the raw data results of your book search below."', shell=True )
+
+# Using subprocess.run to execute the curl command, the script will initiate a get request to the api and the script will display the data that was returned from that request.
+subprocess.run('curl "https://libapp.library.yale.edu/VoySearch/GetBibItem?isxn=9780415704953"', shell=True )
+
+# Initiating get request and retrieving the data in .json format.
+url = 'https://libapp.library.yale.edu/VoySearch/GetBibItem?isxn=9780415704953'
+headers = {
+    'Accept' : 'application/json',
+    'Content-Type' : 'application/json'
+}
+response = requests.request("GET", url,headers=headers,data={})
+myjson = response.json()
+ourdata = []
+
+# Defining the headers of the .csv file that will be created.
+csvheader = ['Title', 'Author and Author Birth Year', 'Description', 'Publisher', 'Publication Place', 'Publication Date' ]
+
+#Formatting json data so that the data can be passed in to a  csv file. Only the most important 5 data elements were extracted from this data and will be included in the csv file.
+for x in myjson['record']:
+    listing = [x['title'],x['author'],x['pdescription'],x['publisher'],x['pubplace'],x['pubdate']]
+    ourdata.append(listing)
+#Create new csv file and format the file so that the  headers, rows, and columns are displayed appropriately.
+with open('api-yale.csv', 'w',encoding='UTF8', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(csvheader)
+    writer.writerows(ourdata)
+
+#Using subprocess.run to execute the echo command, the script will tell the user where the truncated book search results can be found.
+subprocess.run('echo "The truncated results of your book search have been saved in a file named api-yale.csv"', shell=True)
+subprocess.run('echo "Please see your truncated book search results below."', shell=True )
+
+#Using subprocess.run to execute the echo command, the script will display the truncated book search results.
+subprocess.run('cat api-yale.csv', shell=True)
+subprocess.run('echo "Your search is now complete. Have a great day!"', shell=True )
