@@ -21,4 +21,4 @@ sed -i.bak 1i"Title,Author,Pdescription,Publisher,Pubplace,Isbn" newapi2.json
 echo "Here are your truncated book search results from Yale Library!"
 cat newapi2.json
 cat newapi2.json > newapi.csv
-echo "Your book search results are now saved in to a .csv file!"
+echo "Your book search results are now saved in to a .csv file named newapi.csv!"
